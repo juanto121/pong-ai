@@ -7,7 +7,7 @@ H = 200 # num of hidden layer neuros
 batch_size = 10 # update param every batch_size episodes
 learning_rate = 1e-3
 gamma = 0.99 #discount factor for events after bad/good decision
-decay_rate = 0.99 # dont know what this is
+decay_rate = 0.99 # used for rms prop decay
 resume = False
 render = False
 
