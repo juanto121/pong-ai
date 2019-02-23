@@ -7,16 +7,18 @@ from torch.autograd import Variable
 from torch.distributions import Bernoulli
 import numpy as np
 import cv2
+from torchviz import make_dot
+import time
 
 H = 200
 D = 80 * 65
 C = 3
 gamma = 0.99
-batch_size = 50
+batch_size = 5 # every batch_size parameters will be updated
 learning_rate = 1e-3
 
-render = False
-resume = False
+render = True
+resume = True
 model_name = 'pong-torch.model'
 
 class PolicyNet(nn.Module):
@@ -59,7 +61,7 @@ def main():
     observation = env.reset()
     policy = PolicyNet()
     if resume: policy.load_state_dict(torch.load(model_name))
-    optimizer = torch.optim.RMSprop(policy.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
 
     state_pool = []
     action_pool = []
@@ -80,6 +82,7 @@ def main():
         x = Variable(torch.from_numpy(x_diff).float())
 
         probs = policy(x)
+
         distribution = Bernoulli(probs)
         action = distribution.sample()  # returns 0 or 1
         log_prob = distribution.log_prob(action)  # cross entropy for a sample in a given distribution
@@ -108,7 +111,11 @@ def main():
                 optimizer.zero_grad()
                 policy_loss = []
 
-                for log_prob, dis_reward in zip(prob_pool, discounted_rewards):
+                zipped = zip(prob_pool, discounted_rewards)
+                zipped_list = list(zipped)
+                print(len(zipped_list))
+
+                for log_prob, dis_reward in zipped_list:
                     policy_loss.append(-log_prob * dis_reward)
 
                 policy_loss = torch.cat(policy_loss).sum()
@@ -131,7 +138,7 @@ def main():
 
         if reward != 0:
             game += 1
-            print(f"episode: {steps}, game: ${game} reward {reward} {'😋' if reward == 1 else ''}")
+            if reward == 1 : print(f"episode: {steps}, game: ${game} reward {reward} {'😋' if reward == 1 else ''}")
 
 if __name__ == '__main__':
     main()

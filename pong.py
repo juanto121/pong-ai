@@ -4,7 +4,7 @@ import gym
 import cv2
 
 H = 200 # num of hidden layer neuros
-batch_size = 10 # update param every batch_size episodes
+batch_size = 20 # update param every batch_size episodes
 learning_rate = 1e-3
 gamma = 0.99 #discount factor for events after bad/good decision
 decay_rate = 0.99 # used for rms prop decay
@@ -139,6 +139,9 @@ while True:
         epdlogp *= discounted_epr
         #TODO: UNDERSTAND THIS BACKPROP
         grad = policy_backward(eph, epdlogp)
+
+        print(len(epdlogp))
+
         for k in model: grad_buffer[k] += grad[k]
         
         if episode_number % batch_size == 0:
